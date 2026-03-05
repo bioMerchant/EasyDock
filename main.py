@@ -25,7 +25,7 @@ class UserInterface(ctk.CTk):
         self.tabview = ctk.CTkTabview(self)
         self.tabview.pack(padx=20, fill="both", expand=True)
 
-        #//////////////////////////////////////////////////////////////////////////////// Tab 1: File converter
+        #//////////////////////////////////////////////////////////////////////////////// Tab 1: File converter 
         
         FileConverterTab = self.tabview.add("Convert pdb to pdbqt")    
         self.converter_frame = ctk.CTkFrame(FileConverterTab)
@@ -62,29 +62,46 @@ class UserInterface(ctk.CTk):
 #Convert fast button
         ctk.CTkButton(self.converter_frame, text="Convert to PDBQT (faster no hydrogens)",command=self.convert_fileFast).pack(pady=(20,5))
 
-        #//////////////////////////////////////////////////////////////////////////////// Tab 2: Smiles to pdbqt and visualize
-        SMILESconverterTab = self.tabview.add("SMILES visualizer and converter")
-        self.SMILESFrame = ctk.CTkFrame(SMILESconverterTab)
-        self.SMILESFrame.pack(fill="x", padx=20, pady=5)
+        #//////////////////////////////////////////////////////////////////////////////// Tab 2: Smiles to visualize 
+        SMILEVisualizeTab = self.tabview.add("SMILES visualizer")
+        self.SMILESVFrame = ctk.CTkFrame(SMILEVisualizeTab)
+        self.SMILESVFrame.pack(fill="x", padx=20, pady=5)
         
-        ctk.CTkLabel(self.SMILESFrame, text = 'Input SMILES for conversion or visulaization').pack(pady=(10, 5))
-        self.InputSMILES = ctk.CTkEntry(self.SMILESFrame, placeholder_text= 'SMILES')
+        ctk.CTkLabel(self.SMILESVFrame, text = 'Input SMILES for conversion or visulaization').pack(pady=(10, 5))
+        self.InputSMILES = ctk.CTkEntry(self.SMILESVFrame, placeholder_text= 'SMILES')
         self.InputSMILES.pack(fill="x", padx=20, pady=5)
 
         self.SMILESButtonVisualize = ctk.CTkButton(
-        self.SMILESFrame, 
+        self.SMILESVFrame, 
         text='Show structure',
         command=self.show_SMILES
         )
         self.SMILESButtonVisualize.pack(pady=10)
-#////////////////////////////////////////////////////////////////////////add def for func-->
-        self.CovertSMILESpdbqtbutton = ctk.CTkButton(self.SMILESFrame, text='convert to pdbqt')
-        self.CovertSMILESpdbqtbutton.pack(pady = 10)
-#////////////////////////////////////////////////////////////////////////
+
+        #//////////////////////////////////////////////////////////////////////////////// Tab 3: Smiles to PDBQT 
+        SMILESconverterTab = self.tabview.add('Convert SMILES to PDBQT')
+        self.smilesConverterFrame = ctk.CTkFrame(SMILESconverterTab)
+        self.smilesConverterFrame.pack(fill='x', padx = 20 , pady = 5)
+
+        #label and input for SMILES 
+        ctk.CTkLabel(self.smilesConverterFrame, text = "Input SMILES:").pack(pady = (10,5))
+        self.SMILESInputforconv = ctk.CTkEntry(self.smilesConverterFrame)
+        self.SMILESInputforconv.pack(fill="x", expand=True, padx=(10, 10), pady=10)
+
+        #label and input for SMILES pdbqt with button
+        ctk.CTkLabel(self.smilesConverterFrame, text = "Select File destination for output:").pack(pady = (20,5))
+
+        self.input_entry_SMILES_dest = ctk.CTkEntry(self.smilesConverterFrame, placeholder_text="No file selected")
+        self.input_entry_SMILES_dest.pack(side="left", fill="x", expand=True, padx=(10, 10), pady=10)
+        ctk.CTkButton(self.smilesConverterFrame, text="Browse output destination", 
+              command=self.select_output_folder).pack(padx=10, pady=10)
         
+        # Convert smiles button
+        ctk.CTkButton(self.smilesConverterFrame, text="Convert to PDBQT",command=self.convert_file).pack(pady=(20,5))
 
 
-        #//////////////////////////////////////////////////////////////////////////////// Tab 3: Quick Blind Dock - File selectors
+
+        #//////////////////////////////////////////////////////////////////////////////// Tab 4: Quick Blind Dock - File selectors
         QuickBlindDockTab = self.tabview.add("Quick Blind Dock")
         
         # File selection frame INSIDE the tab
@@ -113,12 +130,14 @@ class UserInterface(ctk.CTk):
         ctk.CTkButton(self.ligand_frame, text="Browse", 
                      command=self.select_ligand).pack(side="right", padx=10, pady=10)
         
-        #///////////////////////////////////////////////////////////////////////////////// Tab 4: Multidock
+        #///////////////////////////////////////////////////////////////////////////////// Tab 5: Multidock
         MultiDock = self.tabview.add("Dock ligand to multipe targets")
         ctk.CTkLabel(MultiDock, text="Advanced options will go here").pack(pady=50)
         ctk.CTkButton(MultiDock, text="Test Button", 
                      command=lambda: print("Advanced tab clicked")).pack(pady=10)
     
+
+#//////////////////////////////////////////////////////////////////////////////////////// Functions
     def select_receptor(self):
         filename = filedialog.askopenfilename(
             title="Select Receptor (.pdbqt)",
@@ -151,6 +170,13 @@ class UserInterface(ctk.CTk):
         if folder:
             self.output_entry.delete(0, "end")
             self.output_entry.insert(0, folder)
+    
+    def select_output_folder_SMILESPDBQT(self):
+        folder = filedialog.askdirectory(title="Select output folder")
+        if folder:
+            self.input_entry_SMILES_dest.delete(0, "end")
+            self.input_entry_SMILES_dest.insert(0, folder)
+
 
     def convert_file(self):
         input_path = self.input_entry.get()
@@ -205,7 +231,7 @@ class UserInterface(ctk.CTk):
                 self.structure_label.destroy()
             
         
-            self.structure_label = ctk.CTkLabel(self.SMILESFrame, image=photo, text="")  # Fixed: CTkLabel
+            self.structure_label = ctk.CTkLabel(self.SMILESVFrame, image=photo, text="")  # Fixed: CTkLabel
             self.structure_label.image = photo  # Keep reference!
             self.structure_label.pack(pady=20)
         
