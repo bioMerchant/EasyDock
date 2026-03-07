@@ -94,10 +94,10 @@ class UserInterface(ctk.CTk):
         self.input_entry_SMILES_dest = ctk.CTkEntry(self.smilesConverterFrame, placeholder_text="No file selected")
         self.input_entry_SMILES_dest.pack(side="left", fill="x", expand=True, padx=(10, 10), pady=10)
         ctk.CTkButton(self.smilesConverterFrame, text="Browse output destination", 
-              command=self.select_output_folder).pack(padx=10, pady=10)
+              command=self.select_output_folder_SMILESPDBQT).pack(padx=10, pady=10)
         
         # Convert smiles button
-        ctk.CTkButton(self.smilesConverterFrame, text="Convert to PDBQT",command=self.convert_file).pack(pady=(20,5))
+        ctk.CTkButton(self.smilesConverterFrame, text="Convert to PDBQT",command=self.convertSMILES_PDBQT).pack(pady=(20,5))
 
 
 
@@ -129,6 +129,8 @@ class UserInterface(ctk.CTk):
         
         ctk.CTkButton(self.ligand_frame, text="Browse", 
                      command=self.select_ligand).pack(side="right", padx=10, pady=10)
+
+        ctk.CTkButton(self.files_frame, text = 'Dock', command = self.quickBlindDock).pack(padx=10, pady=40)
         
         #///////////////////////////////////////////////////////////////////////////////// Tab 5: Multidock
         MultiDock = self.tabview.add("Dock ligand to multipe targets")
@@ -138,6 +140,31 @@ class UserInterface(ctk.CTk):
     
 
 #//////////////////////////////////////////////////////////////////////////////////////// Functions
+    def quickBlindDock(self):
+        receptorPath = self.receptor_entry.get().strip()
+        ligandPath = self.ligand_entry.get().strip()
+        exhustiveness = 16
+        poses = 5
+        
+        docker = dockingScripts.docking(receptorPath,ligandPath,exhustiveness,poses)
+        docker.dockBlind()
+        
+    
+    def convertSMILES_PDBQT(self):
+        SMILES = self.SMILESInputforconv.get().strip()
+        output_folder = self.input_entry_SMILES_dest.get().strip()
+        filename = getattr(self, 'output_filename_entry', None) and self.output_filename_entry.get() or "converted"
+    
+        if not SMILES or not output_folder:
+            print("Please select input file and output folder")
+            return
+    
+        output_path = os.path.join(output_folder, f"SMILES.pdbqt")
+    
+        converter = babelConverter.ObabelConverter(SMILES, output_path)
+        success, result = converter.SMILES_PDBQT()    
+
+    
     def select_receptor(self):
         filename = filedialog.askopenfilename(
             title="Select Receptor (.pdbqt)",
